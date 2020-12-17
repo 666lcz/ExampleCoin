@@ -1,24 +1,22 @@
 const Token = artifacts.require("Token")
 
 contract('Token', function(accounts) {
+    let contractInstance;
+    beforeEach(async () => {
+        contractInstance = await Token.deployed();
+    });
     describe('Initial parameters are set correctly', function () {
         it('name is set correctly', async function () {
-          return Token.deployed().then(async function (instance) {
-              expect(await instance.name()).to.equal('Joyce');
-          });
+            expect(await contractInstance.name()).to.equal('Joyce');
         });
 
         it('symbol is set correctly', async function () {
-            return Token.deployed().then(async function (instance) {
-                expect(await instance.symbol()).to.equal('JYZ');
-            });
+            expect(await contractInstance.symbol()).to.equal('JYZ');
           });
 
         it('total supply is set correctly', async function () {
-        return Token.deployed().then(async function (instance) {
-            const supply = (await instance.totalSupply()).toNumber();
+            const supply = (await contractInstance.totalSupply()).toNumber();
             expect(supply).to.equal(1000);
-        });
         });
     });
 
