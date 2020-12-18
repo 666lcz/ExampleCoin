@@ -74,12 +74,11 @@ contract("TokenSale", function (accounts) {
     it("should enforce the contract has enough tokens", async function () {
       const numTokensToBuy = numTokenForInitialSale + 1;
 
-      await truffleAssert.fails(
+      await truffleAssert.reverts(
         contractInstance.buyTokens(numTokensToBuy, {
           from: buyer,
           value: numTokensToBuy * tokenPrice,
         }),
-        truffleAssert.ErrorType.REVERT
       );
     });
 
@@ -95,6 +94,39 @@ contract("TokenSale", function (accounts) {
       (
         await tokenContractInstance.balanceOf(buyer)
       ).should.be.a.bignumber.that.equals(numTokens.toString());
+    });
+  });
+
+  describe("Sale ending", function () {
+    it("should fail when accessed by non-admin account", async function () {
+      await truffleAssert.fails(
+        contractInstance.endSale({
+          from: buyer,
+        }),
+        truffleAssert.ErrorType.REVERT
+      );
+    });
+
+    it("should return all remaining tokens to the admin", async function () {
+      const adminBalanceBefore = await tokenContractInstance.balanceOf(admin);
+      const contractBalanceBefore = await tokenContractInstance.balanceOf(
+        contractInstance.address
+      );
+
+      await contractInstance.endSale({
+        from: admin,
+      });
+
+      (
+        await tokenContractInstance.balanceOf(contractInstance.address)
+      ).should.be.a.bignumber.that.equals("0");
+
+      const expectedAdminBalanceAfter = adminBalanceBefore.add(
+        contractBalanceBefore
+      );
+      (
+        await tokenContractInstance.balanceOf(admin)
+      ).should.be.a.bignumber.that.equals(expectedAdminBalanceAfter);
     });
   });
 });

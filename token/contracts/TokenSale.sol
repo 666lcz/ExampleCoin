@@ -7,7 +7,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 contract TokenSale {
     using SafeMath for uint256;
 
-    address private _admin;
+    address payable private  _admin;
     Token public tokenContract;
     uint256 public tokenPrice;
     uint256 public tokenSold;
@@ -27,5 +27,12 @@ contract TokenSale {
         tokenSold += _numTokens;
 
         emit Sell(msg.sender, _numTokens);
+    }
+
+    // TODO: rewrite the access control code using openzeppelin
+    function endSale() public {
+        require(msg.sender == _admin);
+        require(tokenContract.transfer(_admin, tokenContract.balanceOf(address(this))));
+        selfdestruct(_admin);
     }
 }
