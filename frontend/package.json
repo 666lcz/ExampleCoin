@@ -19,5 +19,6 @@
   "homepage": "https://github.com/666lcz/JoyceCoin#readme",
   "devDependencies": {
     "lite-server": "^2.3.0"
-  }
+  },
+  "dependencies": {}
 }
