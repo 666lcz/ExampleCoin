@@ -8,7 +8,6 @@ App = {
   tokensAvailable: 750000,
 
   init: function () {
-    console.log("App initialized...");
     return App.initWeb3();
   },
 
@@ -26,35 +25,30 @@ App = {
     $.getJSON("TokenSale.json", function (tokeSale) {
       App.contracts.TokenSale = TruffleContract(tokeSale);
       App.contracts.TokenSale.setProvider(App.web3Provider);
-      App.contracts.TokenSale.deployed().then(function (contractInstance) {
-        console.log("Token Sale Address:", contractInstance.address);
-      });
     }).done(function () {
       $.getJSON("Token.json", function (token) {
         App.contracts.Token = TruffleContract(token);
         App.contracts.Token.setProvider(App.web3Provider);
-        App.contracts.Token.deployed().then(function (contractInstance) {
-          console.log("Token Address:", contractInstance.address);
-        });
-
-        //App.listenForEvents();
+        App.listenForEvents();
         return App.render();
       });
     });
   },
 
-  // // Listen for events emitted from the contract
-  // listenForEvents: function() {
-  //   App.contracts.TokenSale.deployed().then(function(instance) {
-  //     instance.Sell({}, {
-  //       fromBlock: 0,
-  //       toBlock: 'latest',
-  //     }).watch(function(error, event) {
-  //       console.log("event triggered", event);
-  //       App.render();
-  //     })
-  //   })
-  // },
+  // Listen for events emitted from the contract
+  listenForEvents: function () {
+    App.contracts.TokenSale.deployed().then(function (instance) {
+      instance.Sell(
+        {
+          fromBlock: 0,
+          toBlock: "latest",
+        },
+        function (error, event) {
+          App.render();
+        }
+      );
+    });
+  },
 
   render: function () {
     if (App.loading) {
@@ -101,7 +95,6 @@ App = {
         App.contracts.Token.deployed()
           .then(function (instance) {
             tokenContractInstance = instance;
-            console.log(App.account);
             return tokenContractInstance.balanceOf(App.account);
           })
           .then(function (balance) {
@@ -119,6 +112,7 @@ App = {
     var numberOfTokens = $("#numberOfTokens").val();
     App.contracts.TokenSale.deployed()
       .then(function (instance) {
+          console.log(1111);
         return instance.buyTokens(numberOfTokens, {
           from: App.account,
           value: numberOfTokens * App.tokenPrice,
@@ -126,7 +120,6 @@ App = {
         });
       })
       .then(function (result) {
-        console.log("Tokens bought...");
         $("form").trigger("reset"); // reset number of tokens in form
         // Wait for Sell event
       });
