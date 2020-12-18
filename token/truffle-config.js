@@ -24,6 +24,13 @@
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
+const chai = require('chai');
+const BN = require('bn.js');
+
+// Enable and inject BN dependency
+chai.use(require('chai-bn')(BN))
+  .should();
+
 module.exports = {
   /**
    * Networks define how you connect to your ethereum client and let you set the
